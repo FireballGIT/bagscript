@@ -4,39 +4,71 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.io.File;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
+public class BagErr extends Exception {
+    public BagErr(String message) {
+        super(message);
+    }
+}
+
+public class RFC extends BagErr {
+    public RFC(String message) {
+        super(message);
+    }
+}
+
+public class NDV extends BagErr {
+    public NDV(String message) {
+        super(message);
+    }
+}
+
+public class VIA extends BagErr {
+    public VIA(String message) {
+        super(message);
+    }
+}
 
 public class Sdf {
     // Class-level globals map to hold variables by name
     private HashMap<String, Object> globals = new HashMap<>();
 
     // Clears console if addon is empty, else clears variable in globals map
-    public void clear(String addon) {
+    public static void clear(String addon) {
         if (addon.equals("")) {
             try {
                 // Clears Windows console
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                throw new RFC("ERROR! Failed to clear console. Err type RuntimeError, Err ID: r-fc");
             }
         } else {
-            // Clear variable by setting to null
-            globals.put(addon, null);
+            if (globals.containsKey(addon) {
+                try {
+                    globals.set(null)
+                }
+
+                catch (Exception e){
+                    throw new NDV("ERROR! Unknown variable '" + addon + "'. Err type NameError, Err ID: n-dv");
+                }
+            }
         }
     }
 
-    // Simple print method
-    public void println(String str) {
+    public static void pause(double seconds) {
+        try {
+            TimeUnit.SECONDS.sleep(seconds);
+        }
+        catch (Exception e) {
+            throw new BagErr("ERROR! Failed to halt program. Err type GenericBagError, Err ID: g-be/hp")
+        }
+    }
+    
+    public static void println(String str) {
         System.out.println(str);
     }
 
-    /**
-     * Frame method to perform actions on frames.
-     * @param action The action: "import", "move", "create"
-     * @param name The name of the file or frame
-     * @param currentFrame The current frame index (passed in but can't be modified directly here)
-     * @param movingTo The frame index to move to (same as above)
-     * @param eql Possibly a flag or comparison int (not fully clear)
-     */
     public void frame(String action, String name, int currentFrame, int movingTo, int eql) {
         if (action.equals("import") && !name.equals("")) {
             try {
@@ -44,7 +76,7 @@ public class Sdf {
                 // TODO: process fileBytes (e.g., load image data, create frame, etc)
                 System.out.println("Imported file: " + name);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new BagErr("ERROR! Failed to import file. Err type GenericBagError, Err ID: g-be/if")
             }
         } else if (action.equals("move") && !name.equals("")) {
             try {
@@ -52,12 +84,8 @@ public class Sdf {
                 System.out.println("Moving to frame: " + movingTo);
                 // To actually move or update state, you'd want to store/mutate class fields or return values
             } catch (Exception e) {
-                System.out.println("ERROR! " + movingTo + " is not a number.");
+                throw new VIA("ERROR! " + movingTo + " is not a valid integer. Err type ValueError, Err ID: v-ia")
             }
-        } else if (action.equals("create") && !name.equals("")) {
-            // Example: create a new Frame object (you need a Frame class!)
-            // Frame frame = new Frame(name, someFileOrData);
-            System.out.println("Create action is not fully implemented yet.");
         } else {
             System.out.println("Unknown action or empty name.");
         }
